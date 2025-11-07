@@ -32,10 +32,10 @@ async function build() {
     // Remove importmap for production build
     html = html.replace(/<script type="importmap">[\s\S]*?<\/script>/s, '');
     
-    // Update script tag to point to the bundled JS file
+    // Update script tag to point to the bundled JS file using a relative path
     html = html.replace(
       '<script type="module" src="/index.tsx"></script>',
-      '<script src="/index.js" defer></script>'
+      '<script src="./index.js" defer></script>'
     );
     
     await fs.writeFile(path.join(outdir, 'index.html'), html);
