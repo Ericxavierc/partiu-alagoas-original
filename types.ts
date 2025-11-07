@@ -1,4 +1,3 @@
-
 export interface Tour {
   id: number;
   title: string;
@@ -15,4 +14,10 @@ export interface Tour {
 export interface Category {
   name: string;
   tours: Tour[];
+}
+
+export interface CartItem {
+  tour: Tour;
+  quantity: number;
+  observation: string;
 }

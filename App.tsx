@@ -4,18 +4,51 @@ import Header from './components/Header';
 import PromotionModal from './components/PromotionModal';
 import TourDetailModal from './components/TourDetailModal';
 import TourCard from './components/TourCard';
-import { Tour } from './types';
+import CartSidebar from './components/CartSidebar';
+import { Tour, CartItem } from './types';
 import { TOURS_DATA, CATEGORIES_DATA } from './constants';
 
 const App: React.FC = () => {
   const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     // Show the promo modal on initial load
     const timer = setTimeout(() => setIsPromoModalOpen(true), 500);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleAddToCart = (tour: Tour, quantity: number, observation: string) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item.tour.id === tour.id);
+      if (existingItem) {
+        return prevItems.map(item =>
+          item.tour.id === tour.id
+            ? { ...item, quantity: item.quantity + quantity, observation }
+            : item
+        );
+      }
+      return [...prevItems, { tour, quantity, observation }];
+    });
+  };
+
+  const handleUpdateCartQuantity = (tourId: number, newQuantity: number) => {
+    if (newQuantity < 1) {
+      handleRemoveFromCart(tourId);
+    } else {
+      setCartItems(prevItems =>
+        prevItems.map(item =>
+          item.tour.id === tourId ? { ...item, quantity: newQuantity } : item
+        )
+      );
+    }
+  };
+
+  const handleRemoveFromCart = (tourId: number) => {
+    setCartItems(prevItems => prevItems.filter(item => item.tour.id !== tourId));
+  };
 
   const promotionalTours = TOURS_DATA.filter(tour => tour.isPromo);
 
@@ -31,9 +64,11 @@ const App: React.FC = () => {
     setSelectedTour(null);
   };
 
+  const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
     <div className="font-sans">
-      <Header />
+      <Header cartItemCount={cartItemCount} onCartClick={() => setIsCartOpen(true)} />
 
       <main className="container mx-auto p-4 md:p-6">
         <section id="destaques" className="mb-12">
@@ -75,8 +110,17 @@ const App: React.FC = () => {
         <TourDetailModal 
           tour={selectedTour} 
           onClose={closeDetailModal}
+          onAddToCart={handleAddToCart}
         />
       )}
+
+      <CartSidebar 
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cartItems={cartItems}
+        onUpdateQuantity={handleUpdateCartQuantity}
+        onRemoveItem={handleRemoveFromCart}
+      />
     </div>
   );
 };

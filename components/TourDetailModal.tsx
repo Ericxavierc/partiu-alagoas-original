@@ -6,9 +6,10 @@ import { CloseIcon, PlusIcon, MinusIcon } from './icons';
 interface TourDetailModalProps {
   tour: Tour;
   onClose: () => void;
+  onAddToCart: (tour: Tour, quantity: number, observation: string) => void;
 }
 
-const TourDetailModal: React.FC<TourDetailModalProps> = ({ tour, onClose }) => {
+const TourDetailModal: React.FC<TourDetailModalProps> = ({ tour, onClose, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
   const [observation, setObservation] = useState('');
 
@@ -16,6 +17,11 @@ const TourDetailModal: React.FC<TourDetailModalProps> = ({ tour, onClose }) => {
   const handleDecrement = () => setQuantity(q => Math.max(1, q - 1));
 
   const total = (tour.price * quantity).toFixed(2).replace('.', ',');
+
+  const handleAddToCartClick = () => {
+    onAddToCart(tour, quantity, observation);
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
@@ -68,8 +74,9 @@ const TourDetailModal: React.FC<TourDetailModalProps> = ({ tour, onClose }) => {
               <button onClick={handleIncrement} className="p-2 text-gray-600 hover:bg-gray-200 rounded-r-lg"><PlusIcon className="w-5 h-5"/></button>
             </div>
           </div>
-          <button className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors text-lg">
-            Adicionar R$ {total}
+          <button onClick={handleAddToCartClick} className="w-full bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors text-lg flex items-center justify-center space-x-2">
+            <i className="fas fa-cart-plus"></i>
+            <span>Adicionar R$ {total}</span>
           </button>
         </div>
       </div>
